@@ -84,15 +84,15 @@ void mainTask(void *pvParameter)
 				coInterruptCounterPrevious = coInterruptCounter;
 
 				/*Set Operating Mode of Slaves to Operational*/
-				CO_sendNMTcommand(CO, 0x01, NODE_ID_MOTOR0);
-				ESP_LOGE("mainTask", "NMT sent");
+				// CO_sendNMTcommand(CO, 0x01, NODE_ID_MOTOR0);
+				//ESP_LOGE("mainTask", "NMT sent");
 				// CO_sendNMTcommand(CO, 0x01, NODE_ID_MOTOR1);
 				// CO_sendNMTcommand(CO, 0x01, NODE_ID_GYRO);
 				//CO_sendNMTcommand(CO, 0x01, NODE_ID_HATOX);
 
 				/* Initialise system components */
-				dunker_init(CO, NODE_ID_MOTOR0, 2);
-				ESP_LOGE("mainTask", "Dunker init");
+				// dunker_init(CO, NODE_ID_MOTOR0, 2);
+				//ESP_LOGE("mainTask", "Dunker init");
 				// gyro_init(CO);
 
 				/* application init code goes here. */
@@ -108,28 +108,28 @@ void mainTask(void *pvParameter)
 						reset = CO_process(CO, coInterruptCounterDiff, NULL);
 						ESP_LOGE("mainTask", "CO_Process init");
 
-						uint8_t sdo_rx_data_buffer[13] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+						// uint8_t sdo_rx_data_buffer[13] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 						// const twai_message_t msg_buffer = {.identifier = 0x61A, .data_length_code = 8, .data = {0x2F, 0x10,  0x08, 0x00, 0x00, 0x00, 0x00, 0x00} };
 					
 
 				while (reset == CO_RESET_NOT)
 				{
 						ESP_LOGE("maintask", "beggining of a While");
-						CO_SDOclientUploadInitiate(CO->SDOclient[0], 0x1008, 0, sdo_rx_data_buffer, 13, 0);
-								dunker_coProcessUploadSDO();
-								ESP_LOGE("mainTask", "Slave device name: %d %d %d %d %d %d %d %d %d %d %d %d %d", sdo_rx_data_buffer[0],
-																													sdo_rx_data_buffer[1],
-																													sdo_rx_data_buffer[2],
-																													sdo_rx_data_buffer[3],
-																													sdo_rx_data_buffer[4],
-																													sdo_rx_data_buffer[5],
-																													sdo_rx_data_buffer[6],
-																													sdo_rx_data_buffer[7],
-																													sdo_rx_data_buffer[8],
-																													sdo_rx_data_buffer[9],
-																													sdo_rx_data_buffer[10],
-																													sdo_rx_data_buffer[11],
-																													sdo_rx_data_buffer[12]);
+						// CO_SDOclientUploadInitiate(CO->SDOclient[0], 0x1008, 0, sdo_rx_data_buffer, 13, 0);
+						// 		dunker_coProcessUploadSDO();
+						// 		ESP_LOGE("mainTask", "Slave device name: %d %d %d %d %d %d %d %d %d %d %d %d %d", sdo_rx_data_buffer[0],
+																													// sdo_rx_data_buffer[1],
+																													// sdo_rx_data_buffer[2],
+																													// sdo_rx_data_buffer[3],
+																													// sdo_rx_data_buffer[4],
+																													// sdo_rx_data_buffer[5],
+																													// sdo_rx_data_buffer[6],
+																													// sdo_rx_data_buffer[7],
+																													// sdo_rx_data_buffer[8],
+																													// sdo_rx_data_buffer[9],
+																													// sdo_rx_data_buffer[10],
+																													// sdo_rx_data_buffer[11],
+																													// sdo_rx_data_buffer[12]);
 																													
 						/* loop for normal program execution ******************************************/
 						// /* Nonblocking application code may go here. */
