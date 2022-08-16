@@ -64,7 +64,7 @@ static can_timing_config_t timingConfig = CAN_TIMING_CONFIG_125KBITS();     //Se
                                                                           //CAN Filter configuration
 static can_filter_config_t filterConfig = CAN_FILTER_CONFIG_ACCEPT_ALL(); //Disable Message Filter
                                                                           //CAN General configuration
-static can_general_config_t generalConfig = {.mode = TWAI_MODE_NO_ACK,
+static can_general_config_t generalConfig = {.mode = TWAI_MODE_NORMAL,
                                              .tx_io = CAN_TX_IO,                  /*TX IO Pin (CO_config.h)*/
                                              .rx_io = CAN_RX_IO,                  /*RX IO Pin (CO_config.h)*/
                                              .clkout_io = CAN_IO_UNUSED,          /*No clockout pin*/
