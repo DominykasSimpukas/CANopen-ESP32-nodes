@@ -84,15 +84,15 @@ void mainTask(void *pvParameter)
 				coInterruptCounterPrevious = coInterruptCounter;
 
 				/*Set Operating Mode of Slaves to Operational*/
-				CO_sendNMTcommand(CO, 0x01, NODE_ID_MOTOR0);
-				ESP_LOGE("mainTask", "NMT sent");
+				// CO_sendNMTcommand(CO, 0x01, NODE_ID_MOTOR0);
+				//ESP_LOGE("mainTask", "NMT sent");
 				// CO_sendNMTcommand(CO, 0x01, NODE_ID_MOTOR1);
 				// CO_sendNMTcommand(CO, 0x01, NODE_ID_GYRO);
 				//CO_sendNMTcommand(CO, 0x01, NODE_ID_HATOX);
 
 				/* Initialise system components */
-				dunker_init(CO, NODE_ID_MOTOR0, 2);
-				ESP_LOGE("mainTask", "Dunker init");
+				// dunker_init(CO, NODE_ID_MOTOR0, 2);
+				//ESP_LOGE("mainTask", "Dunker init");
 				// gyro_init(CO);
 
 				/* application init code goes here. */
@@ -122,22 +122,13 @@ void mainTask(void *pvParameter)
 						if ((i % 100) == 0) {
 						// twai_transmit(&msg_buffer, 1000);
 						// ESP_LOGE("maintask", "beggining of a While");
-						CO_SDOclientUploadInitiate(CO->SDOclient[0], 0x1008, 0, sdo_rx_data_buffer, 13, 0);
+																													// sdo_rx_data_buffer[6],
 						int j = dunker_coProcessUploadSDO();
 
 						ESP_LOGE("mainTask", "Slave device name: %x %x %x %x %x %x %x %x %x %x %x %x %x ASCI: %c %c %c %c %c %c %c %c %c %c %c %c %c\n\r Error:  %d", 
 																													sdo_rx_data_buffer[0],
-																													sdo_rx_data_buffer[1],
-																													sdo_rx_data_buffer[2],
-																													sdo_rx_data_buffer[3],
-																													sdo_rx_data_buffer[4],
-																													sdo_rx_data_buffer[5],
-																													sdo_rx_data_buffer[6],
-																													sdo_rx_data_buffer[7],
-																													sdo_rx_data_buffer[8],
-																													sdo_rx_data_buffer[9],
-																													sdo_rx_data_buffer[10],
-																													sdo_rx_data_buffer[11],
+																													// sdo_rx_data_buffer[11],
+																													// sdo_rx_data_buffer[12]);
 																													sdo_rx_data_buffer[12],
 																													sdo_rx_data_buffer[0],
 																													sdo_rx_data_buffer[1],
