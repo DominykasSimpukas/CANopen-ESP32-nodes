@@ -56,15 +56,14 @@
 #include "driver/gpio.h"
 #include "driver/can.h"
 
-#include "hal/twai_hal.h"
 CO_CANmodule_t *CANmodulePointer = NULL;
 
 //CAN Timing configuration
-static can_timing_config_t timingConfig = CAN_TIMING_CONFIG_125KBITS();     //Set Baudrate to 1Mbit
+static can_timing_config_t timingConfig = CAN_TIMING_CONFIG_1MBITS();     //Set Baudrate to 1Mbit
                                                                           //CAN Filter configuration
 static can_filter_config_t filterConfig = CAN_FILTER_CONFIG_ACCEPT_ALL(); //Disable Message Filter
                                                                           //CAN General configuration
-static can_general_config_t generalConfig = {.mode = TWAI_MODE_NORMAL,
+static can_general_config_t generalConfig = {.mode = CAN_MODE_NORMAL,
                                              .tx_io = CAN_TX_IO,                  /*TX IO Pin (CO_config.h)*/
                                              .rx_io = CAN_RX_IO,                  /*RX IO Pin (CO_config.h)*/
                                              .clkout_io = CAN_IO_UNUSED,          /*No clockout pin*/
@@ -93,9 +92,10 @@ void CO_CANsetConfigurationMode(void *CANdriverState)
 void CO_CANsetNormalMode(CO_CANmodule_t *CANmodule)
 {
     /*Install CAN driver*/
-    can_driver_install(&generalConfig, &timingConfig, &filterConfig);
-    can_start();
-	ESP_LOGE("mainTask", "CAN bus started");
+    ESP_ERROR_CHECK(can_driver_install(&generalConfig, &timingConfig, &filterConfig));
+    /*Start CAN Controller*/
+    ESP_ERROR_CHECK(can_start());
+
     /*WORKAROUND: INTERRUPT ALLOCATION FÜR CAN NICHT MÖGLICH DA BEREITS IM IDF TREIBER VERWENDET*/
     /* Configure Timer interrupt function for execution every CO_CAN_PSEUDO_INTERRUPT_INTERVAL */
     ESP_ERROR_CHECK(esp_timer_create(&CO_CANinterruptArgs, &CO_CANinterruptPeriodicTimer));
@@ -359,7 +359,7 @@ CO_CANtx_t *CO_CANtxBufferInit(
 }
 
 /******************************************************************************/
-CO_ReturnError_t CO_CANsend(CO_CANmodule_t *CANmodule, CO_CANtx_t *buffer, int cmd_flag)
+CO_ReturnError_t CO_CANsend(CO_CANmodule_t *CANmodule, CO_CANtx_t *buffer)
 {
     CO_ReturnError_t err = CO_ERROR_NO;
     can_status_info_t esp_can_hw_status;                      /* Define variable for hardware status of esp can interface */
@@ -382,7 +382,7 @@ CO_ReturnError_t CO_CANsend(CO_CANmodule_t *CANmodule, CO_CANtx_t *buffer, int c
     if ((esp_can_hw_status.msgs_to_tx < CAN_TX_QUEUE_LENGTH) && (CANmodule->CANtxCount == 0))
     {
         CANmodule->bufferInhibitFlag = buffer->syncFlag;
-        can_message_t temp_can_message = {0}; /* generate esp can message for transmission */
+        can_message_t temp_can_message; /* generate esp can message for transmission */
         /*MESSAGE MIT DATEN FÜLLEN*/
         temp_can_message.identifier = buffer->ident;     /* Set message-id in esp can message */
         temp_can_message.data_length_code = buffer->DLC; /* Set data length in esp can message */
@@ -396,35 +396,11 @@ CO_ReturnError_t CO_CANsend(CO_CANmodule_t *CANmodule, CO_CANtx_t *buffer, int c
         {
             temp_can_message.data[i] = buffer->data[i]; /* copy data from buffer in esp can message */
         }
-        twai_hal_frame_t tx_frame;
         /* Transmit esp can message.  */
-       
-        if (can_transmit(&temp_can_message,/* &tx_frame, */ pdMS_TO_TICKS(CAN_TICKS_TO_WAIT)) == ESP_OK)
+        if (can_transmit(&temp_can_message, pdMS_TO_TICKS(CAN_TICKS_TO_WAIT)) == ESP_OK)
         {
-            //
-            //  ESP_LOGI("CANsend", "ID: %d %d,DLC %d ,  Data %d,%d,%d,%d,%d,%d,%d,%d   Data hex: %x,%x,%x,%x,%x,%x,%x,%x", tx_frame.standard.id[0],
-            //                                                                                                       tx_frame.standard.id[1],
-            //                                                                                                         tx_frame.dlc,
-            //                                                                                                         tx_frame.standard.data[0], 
-            //                                                                                                         tx_frame.standard.data[1], 
-            //                                                                                                         tx_frame.standard.data[2], 
-            //                                                                                                         tx_frame.standard.data[3], 
-            //                                                                                                         tx_frame.standard.data[4], 
-            //                                                                                                         tx_frame.standard.data[5],
-            //                                                                                                         tx_frame.standard.data[6],
-            //                                                                                                         tx_frame.standard.data[7], 
-            //                                                                                                         tx_frame.standard.data[0], 
-            //                                                                                                         tx_frame.standard.data[1], 
-            //                                                                                                         tx_frame.standard.data[2], 
-            //                                                                                                         tx_frame.standard.data[3], 
-            //                                                                                                         tx_frame.standard.data[4], 
-            //                                                                                                         tx_frame.standard.data[5],
-            //                                                                                                         tx_frame.standard.data[6],
-            //                                                                                                         tx_frame.standard.data[7]);
-            
-            ESP_LOGI("CANsend", "ID: %d ID hex: %x, cmd_flag %d,DLC %d ,  Data %d,%d,%d,%d,%d,%d,%d,%d   Data hex: %x,%x,%x,%x,%x,%x,%x,%x", temp_can_message.identifier,
-                                                                                                                    temp_can_message.identifier , 
-                                                                                                                    cmd_flag, 
+            ESP_LOGI("CANsend", "ID: %d ID hex: %x,DLC %d ,  Data %d,%d,%d,%d,%d,%d,%d,%d   Data hex: %x,%x,%x,%x,%x,%x,%x,%x", temp_can_message.identifier,
+                                                                                                                    temp_can_message.identifier,
                                                                                                                     temp_can_message.data_length_code,
                                                                                                                     temp_can_message.data[0], 
                                                                                                                     temp_can_message.data[1], 
@@ -442,8 +418,7 @@ CO_ReturnError_t CO_CANsend(CO_CANmodule_t *CANmodule, CO_CANtx_t *buffer, int c
                                                                                                                     temp_can_message.data[5],
                                                                                                                     temp_can_message.data[6],
                                                                                                                     temp_can_message.data[7]);
-            // ESP_LOGI("CANsend", "cmd_flag %d", cmd_flag);
-        }
+  }
         else
         {
             err = CO_ERROR_TIMEOUT;
@@ -595,6 +570,24 @@ void CO_CANinterrupt(void *args)
     {
         can_message_t temp_can_message; //ESP data type can message
         ESP_ERROR_CHECK(can_receive(&temp_can_message, pdMS_TO_TICKS(CAN_TICKS_TO_WAIT)));
+        ESP_LOGI("CANReceive", "ID: %d ID hex: %x, Data %d,%d,%d,%d,%d,%d,%d,%d   Data hex: %x,%x,%x,%x,%x,%x,%x,%x", temp_can_message.identifier,
+                                                                                                                    temp_can_message.identifier , 
+                                                                                                                    temp_can_message.data[0], 
+                                                                                                                    temp_can_message.data[1], 
+                                                                                                                    temp_can_message.data[2], 
+                                                                                                                    temp_can_message.data[3], 
+                                                                                                                    temp_can_message.data[4], 
+                                                                                                                    temp_can_message.data[5],
+                                                                                                                    temp_can_message.data[6],
+                                                                                                                    temp_can_message.data[7], 
+                                                                                                                    temp_can_message.data[0], 
+                                                                                                                    temp_can_message.data[1], 
+                                                                                                                    temp_can_message.data[2], 
+                                                                                                                    temp_can_message.data[3], 
+                                                                                                                    temp_can_message.data[4], 
+                                                                                                                    temp_can_message.data[5],
+                                                                                                                    temp_can_message.data[6],
+                                                                                                                    temp_can_message.data[7]);
 
         CO_CANrxMsg_t rcvMsg;      /* pointer to received message in CAN module */
         uint16_t index;            /* index of received message */
@@ -651,25 +644,5 @@ void CO_CANinterrupt(void *args)
         {
             buffer->pFunct(buffer->object, &rcvMsg);
         }
-    
-     ESP_LOGI("CANReceive", "ID: %d ID hex: %x, DLC: %d, Data %d,%d,%d,%d,%d,%d,%d,%d   Data hex: %x,%x,%x,%x,%x,%x,%x,%x", temp_can_message.identifier,
-                                                                                                                    temp_can_message.identifier,
-                                                                                                                    temp_can_message.data_length_code, 
-                                                                                                                    temp_can_message.data[0], 
-                                                                                                                    temp_can_message.data[1], 
-                                                                                                                    temp_can_message.data[2], 
-                                                                                                                    temp_can_message.data[3], 
-                                                                                                                    temp_can_message.data[4], 
-                                                                                                                    temp_can_message.data[5],
-                                                                                                                    temp_can_message.data[6], 
-                                                                                                                    temp_can_message.data[7],  
-                                                                                                                    temp_can_message.data[0], 
-                                                                                                                    temp_can_message.data[1], 
-                                                                                                                    temp_can_message.data[2], 
-                                                                                                                    temp_can_message.data[3], 
-                                                                                                                    temp_can_message.data[4], 
-                                                                                                                    temp_can_message.data[5],
-                                                                                                                    temp_can_message.data[6], 
-                                                                                                                    temp_can_message.data[7]);
     }
 }
