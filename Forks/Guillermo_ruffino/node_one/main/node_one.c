@@ -113,6 +113,7 @@ void mainTask(void *pvParameter)
 				int i = 0;
 				while (reset == CO_RESET_NOT)
 				{
+					//koment
 						
 						/*download*/
 						// CO_SDOclientDownloadInitiate(CO->SDOclient[0], 0x1008, 0, sdo_rx_data_buffer, 13, 0);
