@@ -144,7 +144,7 @@ int8_t dunker_coProcessUploadSDO(void)
 		int8_t ret = 0;
 		uint32_t dataSize = 0;
 		uint16_t delay = 1;
-		
+		ESP_LOGE("CEN", "trying to proceed upload");
 		do
 		{
 				ret = CO_SDOclientUpload(_CO->SDOclient[0], 1, 5000, &dataSize, &SdoAbortCode);
@@ -159,6 +159,7 @@ int8_t dunker_coProcessDownloadSDO(void)
 		uint32_t SdoAbortCode = CO_SDO_AB_NONE;
 		int8_t ret = 0;
 		uint16_t delay = 1;
+		
 		do
 		{
 				ret = CO_SDOclientDownload(_CO->SDOclient[0], 1, 5000, &SdoAbortCode);

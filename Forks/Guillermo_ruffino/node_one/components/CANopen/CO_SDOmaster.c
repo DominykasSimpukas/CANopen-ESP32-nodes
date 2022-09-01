@@ -827,6 +827,7 @@ CO_SDOclient_return_t CO_SDOclientUpload(
 
     /* verify parameters */
     if(SDO_C == NULL) {
+        ESP_LOGE("CENTRAL_SUPPORT_CONTROL", "wrong argument");
         return CO_SDOcli_wrongArguments;
     }
 
@@ -881,12 +882,12 @@ CO_SDOclient_return_t CO_SDOclientUpload(
 
 /*  RX data ******************************************************************************** */
     if(IS_CANrxNew(SDO_C->CANrxNew)){
-        // ESP_LOGE("CO_CANmodule_it", "New msg has arrived");
+         ESP_LOGE("CO_CANmodule_it", "New msg has arrived");
         uint8_t SCS = SDO_C->CANrxData[0]>>5;    /* Client command specifier */
 
         /*  ABORT */
         if (SDO_C->CANrxData[0] == (SCS_ABORT<<5)){
-            // ESP_LOGE("CO_CANmodule_it", "if received 1 byte is 80, abort");
+             ESP_LOGE("CO_CANmodule_it", "if received 1 byte is 80, abort");
             SDO_C->state = SDO_STATE_NOTDEFINED;
             CLEAR_CANrxNew(SDO_C->CANrxNew);
             CO_memcpySwap4(pSDOabortCode , &SDO_C->CANrxData[4]);
@@ -894,11 +895,11 @@ CO_SDOclient_return_t CO_SDOclientUpload(
         }
         switch (SDO_C->state){
             case SDO_STATE_UPLOAD_INITIATED:{
-            // ESP_LOGE("CO_CANmodule_it", "Upload init");
+             ESP_LOGE("CO_CANmodule_it", "Upload init");
                 
                 if (SCS == SCS_UPLOAD_INITIATE){
                     if(SDO_C->CANrxData[0] & 0x02){
-                        // ESP_LOGE("CO_CANmodule_it", "expedited trasfer");
+                         ESP_LOGE("CO_CANmodule_it", "expedited trasfer");
                         uint8_t size;
                         /* Expedited transfer */
                         if(SDO_C->CANrxData[0] & 0x01)/* is size indicated */
@@ -916,7 +917,7 @@ CO_SDOclient_return_t CO_SDOclientUpload(
                         return CO_SDOcli_ok_communicationEnd;
                     }
                     else{
-                        // ESP_LOGE("CO_CANmodule_it", "segmented transfer");
+                         ESP_LOGE("CO_CANmodule_it", "segmented transfer");
                         /* segmented transfer - prepare first segment */
                         SDO_C->bufferOffset = 0;
                         SDO_C->state = SDO_STATE_UPLOAD_REQUEST;
@@ -933,7 +934,7 @@ CO_SDOclient_return_t CO_SDOclientUpload(
             }
 
             case SDO_STATE_UPLOAD_RESPONSE:{
-                // ESP_LOGE("CO_CANmodule_it", "Uplaod response");
+                 ESP_LOGE("CO_CANmodule_it", "Uplaod response");
                 if (SCS == SCS_UPLOAD_SEGMENT){
                      uint16_t size, i;
                     /* verify toggle bit */
@@ -973,7 +974,7 @@ CO_SDOclient_return_t CO_SDOclientUpload(
             }
 
             case SDO_STATE_BLOCKUPLOAD_INITIATE:{
-                // ESP_LOGE("CO_CANmodule_it", "Block upload init");
+                 ESP_LOGE("CO_CANmodule_it", "Block upload init");
                 if (SCS == SCS_UPLOAD_BLOCK){ /*  block upload initiate response */
 
                     SDO_C->state = SDO_STATE_BLOCKUPLOAD_INITIATE_ACK;
@@ -1047,13 +1048,13 @@ CO_SDOclient_return_t CO_SDOclientUpload(
             }
 
             case SDO_STATE_BLOCKUPLOAD_INPROGRES:{
-                // ESP_LOGE("CO_CANmodule_it", "Block uplaod in progress");
+                 ESP_LOGE("CO_CANmodule_it", "Block uplaod in progress");
                 /* data are copied directly in receive function */
                 break;
             }
 
             case SDO_STATE_BLOCKUPLOAD_SUB_END:{
-                // ESP_LOGE("CO_CANmodule_it", "Block upload sub end");
+                 ESP_LOGE("CO_CANmodule_it", "Block upload sub end");
                 /* data was copied by receive function, sub-block is finished */
                 /* Is last segment? */
                 if(SDO_C->CANrxData[0] & 0x80) {
@@ -1080,7 +1081,7 @@ CO_SDOclient_return_t CO_SDOclientUpload(
             }
 
             case SDO_STATE_BLOCKUPLOAD_BLOCK_CRC:{
-                // ESP_LOGE("CO_CANmodule_it", "block upload block crc");
+                 ESP_LOGE("CO_CANmodule_it", "block upload block crc");
                 if (SCS == SCS_UPLOAD_BLOCK){
                     tmp32 = ((SDO_C->CANrxData[0]>>2) & 0x07);
                     SDO_C->dataSizeTransfered -= tmp32;
@@ -1111,7 +1112,7 @@ CO_SDOclient_return_t CO_SDOclientUpload(
             }
 
             default:{
-                // ESP_LOGE("CO_CANmodule_it", "default case");
+                 ESP_LOGE("CO_CANmodule_it", "default case");
                 *pSDOabortCode = CO_SDO_AB_CMD;
                 SDO_C->state = SDO_STATE_ABORT;
                 break;
@@ -1122,14 +1123,14 @@ CO_SDOclient_return_t CO_SDOclientUpload(
     }
 
 /*  TMO *************************************************************************************************** */
- //ESP_LOGE("CO_CANmodule_it", "SDO_C->timeouttimer val : %d and SDOtimeoutTime val:  %d",  SDO_C->timeoutTimer, SDOtimeoutTime);
+//  ESP_LOGE("CO_CANmodule_it", "SDO_C->timeouttimer val : %d and SDOtimeoutTime val:  %d",  SDO_C->timeoutTimer, SDOtimeoutTime);
 
     if(SDO_C->timeoutTimer < SDOtimeoutTime){
         SDO_C->timeoutTimer += timeDifference_ms;
         if (SDO_C->state == SDO_STATE_BLOCKUPLOAD_INPROGRES)
             SDO_C->timeoutTimerBLOCK += timeDifference_ms;
     }
-    // ESP_LOGE("CO_CANmodule_it", "SDO_C->timeouttimer val : %d and SDOtimeoutTime val:  %d",  SDO_C->timeoutTimer, SDOtimeoutTime);
+    //  ESP_LOGE("CO_CANmodule_it", "SDO_C->timeouttimer val : %d and SDOtimeoutTime val:  %d",  SDO_C->timeoutTimer, SDOtimeoutTime);
     
     if(SDO_C->timeoutTimer >= SDOtimeoutTime){ /*  communication TMO */
     ESP_LOGE("CO_CANmodule_it", "abort:  time out");
@@ -1144,14 +1145,14 @@ CO_SDOclient_return_t CO_SDOclientUpload(
 
 /*  TX data ******************************************************************************** */
     if(SDO_C->CANtxBuff->bufferFull) {
-        // ESP_LOGE("CO_CANmodule_it", "buffer full");
+         ESP_LOGE("CO_CANmodule_it", "buffer full");
         return CO_SDOcli_transmittBufferFull;
     }
 
     CO_SDOTxBufferClear(SDO_C);
     switch (SDO_C->state){
         case SDO_STATE_ABORT:{
-            // ESP_LOGE("CO_CANmodule_it", "Case abort");
+             ESP_LOGE("CO_CANmodule_it", "Case abort");
             SDO_C->state = SDO_STATE_NOTDEFINED;
             CO_SDOclient_abort (SDO_C, *pSDOabortCode, 4);
             ret = CO_SDOcli_endedWithClientAbort;
@@ -1160,7 +1161,7 @@ CO_SDOclient_return_t CO_SDOclientUpload(
 
         /*  SEGMENTED UPLOAD */
         case SDO_STATE_UPLOAD_REQUEST:{
-            // ESP_LOGE("CO_CANmodule_it", "uplaod request");
+             ESP_LOGE("CO_CANmodule_it", "uplaod request");
             SDO_C->CANtxBuff->data[0] = (CCS_UPLOAD_SEGMENT<<5) | (SDO_C->toggle & 0x10);
             CO_CANsend(SDO_C->CANdevTx, SDO_C->CANtxBuff, 900);
 
@@ -1171,7 +1172,7 @@ CO_SDOclient_return_t CO_SDOclientUpload(
         }
         /*  BLOCK */
         case SDO_STATE_BLOCKUPLOAD_INITIATE_ACK:{
-          //  ESP_LOGE("CO_CANmodule_it", "blockuplaod init ack");
+            ESP_LOGE("CO_CANmodule_it", "blockuplaod init ack");
             SDO_C->timeoutTimerBLOCK = 0;
             SDO_C->block_seqno = 0;
             SDO_C->state = SDO_STATE_BLOCKUPLOAD_INPROGRES;
@@ -1184,7 +1185,7 @@ CO_SDOclient_return_t CO_SDOclientUpload(
         }
 
         case SDO_STATE_BLOCKUPLOAD_BLOCK_ACK_LAST:{
-            // ESP_LOGE("CO_CANmodule_it", "block upload  block ack last");
+             ESP_LOGE("CO_CANmodule_it", "block upload  block ack last");
             /*  header */
             SDO_C->CANtxBuff->data[0] = (CCS_UPLOAD_BLOCK<<5) | 0x02;
             SDO_C->CANtxBuff->data[1] = SDO_C->block_seqno;
@@ -1201,7 +1202,7 @@ CO_SDOclient_return_t CO_SDOclientUpload(
         }
 
         case SDO_STATE_BLOCKUPLOAD_BLOCK_ACK:{
-            // ESP_LOGE("CO_CANmodule_it", "block  upload block ack");
+             ESP_LOGE("CO_CANmodule_it", "block  upload block ack");
             /*  header */
             SDO_C->CANtxBuff->data[0] = (CCS_UPLOAD_BLOCK<<5) | 0x02;
             SDO_C->CANtxBuff->data[1] = SDO_C->block_seqno;
@@ -1241,7 +1242,7 @@ CO_SDOclient_return_t CO_SDOclientUpload(
         }
 
         case SDO_STATE_BLOCKUPLOAD_BLOCK_END:{
-          //  ESP_LOGE("CO_CANmodule_it", "block uplaod block end");
+            ESP_LOGE("CO_CANmodule_it", "block uplaod block end");
             SDO_C->CANtxBuff->data[0] = (CCS_UPLOAD_BLOCK<<5) | 0x01;
 
             CO_CANsend(SDO_C->CANdevTx, SDO_C->CANtxBuff, 940);
