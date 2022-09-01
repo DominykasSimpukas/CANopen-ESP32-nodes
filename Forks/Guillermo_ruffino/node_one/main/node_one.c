@@ -343,22 +343,22 @@ void mainTask(void *pvParameter)
 						uint8_t sdo_tx_data_buffer[4] = {0xAA, 0xBB, 0xCC, 0xDD};
 						uint8_t sdo_tx_data_byte = 1;
 						uint8_t sdo_tx_data_byte_2 = 0;
-						 const twai_message_t msg_buffer = {.identifier = 0x61A, .data_length_code = 8, .data = {0x40, 0x04,  0x63, 0x0, 0x00, 0x00, 0x00, 0x00} };
-					ESP_LOGE("mainTask", "Slave device name: %c %c %c %c %c %c %c %c %c %c %c %c %c\n\r ", 
-																													sdo_rx_data_buffer[0],
-																													sdo_rx_data_buffer[1],
-																													sdo_rx_data_buffer[2],
-																													sdo_rx_data_buffer[3],
-																													sdo_rx_data_buffer[4],
-																													sdo_rx_data_buffer[5],
-																													sdo_rx_data_buffer[6],
-																													sdo_rx_data_buffer[7],
-																													sdo_rx_data_buffer[8],
-																													sdo_rx_data_buffer[9],
-																													sdo_rx_data_buffer[10],
-																													sdo_rx_data_buffer[11],
-																													sdo_rx_data_buffer[12]
-																													);
+						//  const twai_message_t msg_buffer = {.identifier = 0x61A, .data_length_code = 8, .data = {0x40, 0x04,  0x63, 0x0, 0x00, 0x00, 0x00, 0x00} };
+					// ESP_LOGE("mainTask", "Slave device name: %c %c %c %c %c %c %c %c %c %c %c %c %c\n\r ", 
+					// 																								sdo_rx_data_buffer[0],
+					// 																								sdo_rx_data_buffer[1],
+					// 																								sdo_rx_data_buffer[2],
+					// 																								sdo_rx_data_buffer[3],
+					// 																								sdo_rx_data_buffer[4],
+					// 																								sdo_rx_data_buffer[5],
+					// 																								sdo_rx_data_buffer[6],
+					// 																								sdo_rx_data_buffer[7],
+					// 																								sdo_rx_data_buffer[8],
+					// 																								sdo_rx_data_buffer[9],
+					// 																								sdo_rx_data_buffer[10],
+					// 																								sdo_rx_data_buffer[11],
+					// 																								sdo_rx_data_buffer[12]
+					// 																								);
 				int i = 0;
 				int k = 0;
 				printf("esp32>\n");
@@ -373,29 +373,29 @@ void mainTask(void *pvParameter)
 						// dunker_coProcessDownloadSDO();
 						/* upload*/	
 						// request every 10 s
-						if ((k % 100) == 0) {
-						twai_transmit(&msg_buffer, 1000);
-						// 	ESP_LOGE("maintask", "beggining of a While");
-						// 	CO_SDOclientUploadInitiate(CO->SDOclient[0], 0x1008, 0, sdo_rx_data_buffer, len, 0);
-						// 	int j = dunker_coProcessUploadSDO();
+						if ((k % 50) == 0) {
+						// twai_transmit(&msg_buffer, 1000);
+							ESP_LOGE("maintask", "beggining of a While");
+							CO_SDOclientUploadInitiate(CO->SDOclient[0], 0x6304, 0, sdo_rx_data_buffer, 13, 0);
+							int j = dunker_coProcessUploadSDO();
 
-						// 	ESP_LOGE("mainTask", "Slave device name: %c %c %c %c %c %c %c %c %c %c %c %c %c\n\r Error:  %d", 
-						// 																							sdo_rx_data_buffer[0],
-						// 																							sdo_rx_data_buffer[1],
-						// 																							sdo_rx_data_buffer[2],
-						// 																							sdo_rx_data_buffer[3],
-						// 																							sdo_rx_data_buffer[4],
-						// 																							sdo_rx_data_buffer[5],
-						// 																							sdo_rx_data_buffer[6],
-						// 																							sdo_rx_data_buffer[7],
-						// 																							sdo_rx_data_buffer[8],
-						// 																							sdo_rx_data_buffer[9],
-						// 																							sdo_rx_data_buffer[10],
-						// 																							sdo_rx_data_buffer[11],
-						// 																							sdo_rx_data_buffer[12],
-						// 																							j);
+							ESP_LOGE("mainTask", "Slave device name: %d %d %d %d %d %d %d %d %d %d %d %d %d\n\r Error:  %d", 
+																													sdo_rx_data_buffer[0],
+																													sdo_rx_data_buffer[1],
+																													sdo_rx_data_buffer[2],
+																													sdo_rx_data_buffer[3],
+																													sdo_rx_data_buffer[4],
+																													sdo_rx_data_buffer[5],
+																													sdo_rx_data_buffer[6],
+																													sdo_rx_data_buffer[7],
+																													sdo_rx_data_buffer[8],
+																													sdo_rx_data_buffer[9],
+																													sdo_rx_data_buffer[10],
+																													sdo_rx_data_buffer[11],
+																													sdo_rx_data_buffer[12],
+																													j);
 						k = 0;
-						// }
+						}
 						// if ( i == 10) {
 						// 	CO_SDOclientDownloadInitiate(CO->SDOclient[0], 0x6303,  0x00, &sdo_tx_data_byte, 1, 0);
 						// 	dunker_coProcessDownloadSDO(); 
@@ -405,7 +405,7 @@ void mainTask(void *pvParameter)
 						// 	dunker_coProcessDownloadSDO(); 
 						// 	ESP_LOGE("mainTask", "data was downlaoded to server");
 						// 	i = 0; 
-						}																				
+						// }																				
 						
 						 k++;	
 
