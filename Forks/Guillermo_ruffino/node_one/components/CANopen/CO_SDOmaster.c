@@ -835,13 +835,13 @@ CO_SDOclient_return_t CO_SDOclientUpload(
 
     /* if nodeIDOfTheSDOServer == node-ID of this node, then exchange data with this node */
     if(SDO_C->SDO && SDO_C->SDOClientPar->nodeIDOfTheSDOServer == SDO_C->SDO->nodeId){
-        // ESP_LOGE("CO_SDOclientUpload", "nod-ID of this node is node-ID of  the server, exchanging data with  this node");
+         ESP_LOGE("CO_SDOclientUpload", "nod-ID of this node is node-ID of  the server, exchanging data with  this node");
         SDO_C->state = SDO_STATE_NOTDEFINED;
         CLEAR_CANrxNew(SDO_C->CANrxNew);
 
         /* If SDO server is busy return error */
         if(SDO_C->SDO->state != 0){
-            // ESP_LOGE("CO_CANmodule_it", "SDO server is busy");
+             ESP_LOGE("CO_CANmodule_it", "SDO server is busy");
             *pSDOabortCode = CO_SDO_AB_DEVICE_INCOMPAT;
             return CO_SDOcli_endedWithClientAbort;
         }
@@ -849,7 +849,7 @@ CO_SDOclient_return_t CO_SDOclientUpload(
         /* init ODF_arg */
         *pSDOabortCode = CO_SDO_initTransfer(SDO_C->SDO, SDO_C->index, SDO_C->subIndex);
         if((*pSDOabortCode) != CO_SDO_AB_NONE){
-            // ESP_LOGE("CO_CANmodule_it", "failed  to initialize  SDOtransfer");
+             ESP_LOGE("CO_CANmodule_it", "failed  to initialize  SDOtransfer");
             return CO_SDOcli_endedWithServerAbort;
         }
 
@@ -861,7 +861,7 @@ CO_SDOclient_return_t CO_SDOclientUpload(
         /* read data from the Object dictionary */
         *pSDOabortCode = CO_SDO_readOD(SDO_C->SDO, SDO_C->bufferSize);
         if((*pSDOabortCode) != CO_SDO_AB_NONE){
-            // ESP_LOGE("CO_CANmodule_it", "faield to read data from OD to internnal buffer");
+             ESP_LOGE("CO_CANmodule_it", "faield to read data from OD to internnal buffer");
             return CO_SDOcli_endedWithServerAbort;
         }
 
@@ -870,11 +870,11 @@ CO_SDOclient_return_t CO_SDOclientUpload(
 
         /* is SDO buffer too small */
         if(SDO_C->SDO->ODF_arg.lastSegment == 0){
-            // ESP_LOGE("CO_CANmodule_it", "SDO buffer is  too  small");
+             ESP_LOGE("CO_CANmodule_it", "SDO buffer is  too  small");
             *pSDOabortCode = CO_SDO_AB_OUT_OF_MEM;    /* Out of memory */
             return CO_SDOcli_endedWithServerAbort;
         }
-        // ESP_LOGE("CO_CANmodule_it", "communication  end");
+         ESP_LOGE("CO_CANmodule_it", "communication  end");
         return CO_SDOcli_ok_communicationEnd;
     }
 

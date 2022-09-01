@@ -406,13 +406,13 @@ void mainTask(void *pvParameter)
 						// 	ESP_LOGE("mainTask", "data was downlaoded to server");
 						// 	i = 0; 
 						// }																				
-						// i++;
+						
 						// k++;	
 
-							// if ((i % 150) == 0) {
-							// 	CO_SDOclientUploadInitiate(CO->SDOclient[0], 0x6305, 0x00, sdo_rx_data_buffer, 13, 0);
+							// if ((i % 20) == 0) {
+							// 	CO_SDOclientUploadInitiate(CO->SDOclient[0], 0x1008, 0x00, sdo_rx_data_buffer, 13, 0);
 							// 	int j = dunker_coProcessUploadSDO();
-							// 	ESP_LOGE("mainTask", "Slave device name: %x %x %x %x %x %x %x %x %x %x %x %x %x\n\r Error:  %d", 
+							// 	ESP_LOGE("mainTask", "Slave device name: %c %c %c %c %c %c %c %c %c %c %c %c %c\n\r Error:  %d", 
 							// 																						sdo_rx_data_buffer[0],
 							// 																						sdo_rx_data_buffer[1],
 							// 																						sdo_rx_data_buffer[2],
@@ -427,8 +427,10 @@ void mainTask(void *pvParameter)
 							// 																						sdo_rx_data_buffer[11],
 							// 																						sdo_rx_data_buffer[12],
 							// 																											j);
+							// 																											i=0;
 							// }
-						// }	
+							// i++;
+						//}	
 																										
 						/* loop for normal program execution ******************************************/
 						reset = CO_process(CO, coInterruptCounterDiff, NULL);

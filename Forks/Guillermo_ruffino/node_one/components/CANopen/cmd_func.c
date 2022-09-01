@@ -41,13 +41,13 @@ void CMD_Send_Byte_GIMLI_Control (bool state) {
     uint8_t sdo_tx_data_GIMLI_close = 0;
 
     if (state == 1) {
-        CO_SDOclientDownloadInitiate(CO->SDOclient[0], 0x6303,  0x00, &sdo_tx_data_GIMLI_open, 1, 0);
+        CO_SDOclientDownloadInitiate(CO->SDOclient[0], 0x6304,  0x00, &sdo_tx_data_GIMLI_open, 1, 0);
 	    int err =  dunker_coProcessDownloadSDO();
         if  (err < 0 ) {
             ESP_LOGE("GIMLI_CONTROL", "failed to send SDO:\n err code: %d", err);
         } 
     } else if (state == 0) {
-        CO_SDOclientDownloadInitiate(CO->SDOclient[0], 0x6303,  0x00, &sdo_tx_data_GIMLI_close, 1, 0);
+        CO_SDOclientDownloadInitiate(CO->SDOclient[0], 0x6304,  0x00, &sdo_tx_data_GIMLI_close, 1, 0);
 	    int err =  dunker_coProcessDownloadSDO();
         if  (err < 0 ) {
             ESP_LOGE("GIMLI_CONTROL", "failed to send SDO:\n err code: %d", err);
@@ -66,10 +66,14 @@ void CMD_Send_Byte_Central_Control (bool state) {
             ESP_LOGE("CENTRAL_SUPPORT_CONTROL", "failed to send SDO:\n err code: %d", err);
         } 
     } else if (state == 0) {
-        CO_SDOclientDownloadInitiate(CO->SDOclient[0], 0x6302,  0x00, &sdo_tx_data_central_support_close, 1, 0);
-	    int err =  dunker_coProcessDownloadSDO();
+        ESP_LOGE("CENTRAL_SUPPORT_CONTROL", "tryjing to upload sdo");
+        CO_SDOclientUploadInitiate(CO->SDOclient[0], 0x1008,  0x00, &sdo_tx_data_central_support_close, 1, 0);
+        ESP_LOGE("CENTRAL_SUPPORT_CONTROL", "needto process upload");
+	    int err = 0;
+        err = dunker_coProcessUploadSDO();
         if  (err < 0 ) {
             ESP_LOGE("CENTRAL_SUPPORT_CONTROL", "failed to send SDO:\n err code: %d", err);
         } 
+        printf("received data %d", sdo_tx_data_central_support_close);
     }
 }
